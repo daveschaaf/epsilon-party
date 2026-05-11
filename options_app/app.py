@@ -539,6 +539,63 @@ with tab_greeks:
                 )
             st.plotly_chart(fig_surface, use_container_width=True)
 
+            st.divider()
+
+            # ------------------------------------------------------------------
+            # P&L Attribution
+            # ------------------------------------------------------------------
+            st.markdown("##### P&L Attribution")
+            st.caption(
+                "Estimated impact on 1 contract (100 shares) for each risk factor "
+                "acting independently. Second-order and cross-effects are excluded."
+            )
+
+            MULT = 100  # 1 contract = 100 shares
+
+            # Delta: first-order price sensitivity to a +1% move in S
+            move_1pct = g_S * 0.01
+            delta_pnl = result["delta"] * move_1pct * MULT
+
+            # Gamma: second-order (convexity) contribution of the same +1% move
+            gamma_pnl = 0.5 * result["gamma"] * (move_1pct ** 2) * MULT
+
+            # Theta: one calendar day of time decay
+            theta_pnl = result["theta"] * MULT   # already per day per share
+
+            # Vega: a +1 vol-point (1%) rise in implied volatility
+            # Our vega is already divided by 100 ($ per 1-vol-pt per share)
+            vega_pnl = result["vega"] * MULT
+
+            import pandas as pd  # already available but keep import local to tab
+
+            attr_df = pd.DataFrame({
+                "Source": ["Delta", "Gamma", "Theta", "Vega"],
+                "Driver": [
+                    f"+1% move in {ticker} (first order)",
+                    f"+1% move in {ticker} (second order)",
+                    "1 calendar day passing",
+                    "+1 vol-point rise in IV",
+                ],
+                "Est. P&L Impact": [delta_pnl, gamma_pnl, theta_pnl, vega_pnl],
+            })
+
+            def _color_pnl(val: float) -> str:
+                color = "#26a69a" if val >= 0 else "#ef5350"
+                return f"color: {color}; font-weight: 600"
+
+            styled_attr = (
+                attr_df.style
+                .format({"Est. P&L Impact": lambda v: f"${v:+.2f}"})
+                .map(_color_pnl, subset=["Est. P&L Impact"])
+                .set_properties(subset=["Source"], **{"font-weight": "600"})
+                .set_table_styles([
+                    {"selector": "th", "props": [("text-align", "left")]},
+                    {"selector": "td", "props": [("text-align", "left")]},
+                ])
+            )
+
+            st.dataframe(styled_attr, use_container_width=True, hide_index=True)
+
 # ===========================================================================
 # Tab 3 — Payoff
 # Inline controls: expiry · option type · strike · position · rate
