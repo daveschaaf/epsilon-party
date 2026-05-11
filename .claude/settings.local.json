@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"streamlit run\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8501/healthz)",
+      "Bash(streamlit run *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8503/healthz)",
+      "Bash(curl -s http://localhost:8503/)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0,'options_app'\\); import app\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

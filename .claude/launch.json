@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "options-app",
+      "runtimeExecutable": "streamlit",
+      "runtimeArgs": ["run", "options_app/app.py", "--server.port=8503"],
+      "port": 8503,
+      "autoPort": false
+    }
+  ]
+}
