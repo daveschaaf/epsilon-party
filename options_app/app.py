@@ -16,6 +16,7 @@ Session-state key namespacing:
 """
 
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -99,6 +100,10 @@ with st.sidebar:
         value=st.session_state.ticker,
         key="_ticker_raw",
     ).upper().strip()
+
+    if raw_input and not re.match(r"^[A-Z0-9.\-]{1,10}$", raw_input):
+        st.warning("Enter a valid ticker symbol (1–10 characters: letters, digits, . or -).")
+        raw_input = st.session_state.ticker  # revert to last valid value
 
     if raw_input and raw_input != st.session_state.ticker:
         st.session_state.ticker = raw_input
